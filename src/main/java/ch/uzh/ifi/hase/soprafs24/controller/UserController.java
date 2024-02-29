@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetWithTokenDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,15 @@ public class UserController {
   public UserGetWithTokenDTO authenticateUser(@RequestBody UserPostDTO userPostDTO) {
     UserPostDTO userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     User createdUser = userService.matchingUser(userInput);
+    return DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(createdUser);
+  }
+
+  @PostMapping("/userWithToken")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  @ResponseBody
+  public UserGetWithTokenDTO authenticateUserWithToken(@RequestBody UserWithTokenPostDTO userWithTokenPostDTO) {
+    UserWithTokenPostDTO userInput = DTOMapper.INSTANCE.convertUserWithTokenPostDTOtoEntity(userWithTokenPostDTO);
+    User createdUser = userService.matchingUserWithToken(userInput);
     return DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(createdUser);
   }
 }

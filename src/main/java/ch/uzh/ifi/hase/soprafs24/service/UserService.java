@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenPostDTO;
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -63,11 +64,20 @@ public class UserService {
     String unknownMessage = "Username doesn't exist. Please try again.";
     String wrongMessage = "Password is not correct. Please try again.";
     if (userByUsername == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, unknownMessage);
+      throw new ResponseStatusException(HttpStatus.CONFLICT, unknownMessage);
     }
     if (!userByUsername.getPassword().trim().equals(userInput.getPassword().trim())) {
-      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, wrongMessage);
+      throw new ResponseStatusException(HttpStatus.CONFLICT, wrongMessage);
     }
     return userByUsername;
+  }
+
+  public User matchingUserWithToken(UserWithTokenPostDTO userInput) {
+    User user = userRepository.findByToken(userInput.getToken());
+    String errorMessage = "Invalid token.";
+    if (user == null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+    }
+    return user;
   }
 }
