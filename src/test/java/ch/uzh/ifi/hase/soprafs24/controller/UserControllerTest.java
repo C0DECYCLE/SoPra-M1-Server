@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,12 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * UserControllerTest
- * This is a WebMvcTest which allows to test the UserController i.e. GET/POST
- * request without actually sending them over the network.
- * This tests if the UserController works.
- */
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
 
@@ -45,67 +40,57 @@ public class UserControllerTest {
 
   @Test
   public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
-    // given
     User user = new User();
-    user.setName("Firstname Lastname");
     user.setUsername("firstname@lastname");
     user.setStatus(UserStatus.OFFLINE);
+    user.setCreation_date(new Date(1));
+    user.setBirthday(new Date(1));
 
     List<User> allUsers = Collections.singletonList(user);
 
-    // this mocks the UserService -> we define above what the userService should
-    // return when getUsers() is called
     given(userService.getUsers()).willReturn(allUsers);
 
-    // when
     MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
 
-    // then
     mockMvc.perform(getRequest).andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(1)))
-        .andExpect(jsonPath("$[0].name", is(user.getName())))
+        .andExpect(jsonPath("$[0].id", is(user.getId())))
         .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-        .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+        .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())))
+        .andExpect(jsonPath("$[0].creation_date", is(user.getCreation_date().toString())))
+        .andExpect(jsonPath("$[0].birthday", is(user.getBirthday().toString())));
   }
 
   @Test
   public void createUser_validInput_userCreated() throws Exception {
-    // given
     User user = new User();
-    user.setId(1L);
-    user.setName("Test User");
     user.setUsername("testUsername");
+    user.setPassword("testPassword");
     user.setToken("1");
     user.setStatus(UserStatus.ONLINE);
-
+    user.setCreation_date(new Date(1));
+    user.setBirthday(new Date(1));
+    
     UserPostDTO userPostDTO = new UserPostDTO();
-    userPostDTO.setName("Test User");
     userPostDTO.setUsername("testUsername");
+    userPostDTO.setPassword("testPassword");
 
     given(userService.createUser(Mockito.any())).willReturn(user);
 
-    // when/then -> do the request + validate the result
     MockHttpServletRequestBuilder postRequest = post("/users")
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(userPostDTO));
 
-    // then
     mockMvc.perform(postRequest)
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id", is(user.getId().intValue())))
-        .andExpect(jsonPath("$.name", is(user.getName())))
+        .andExpect(jsonPath("$.id", is(user.getId())))
         .andExpect(jsonPath("$.username", is(user.getUsername())))
-        .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+        .andExpect(jsonPath("$.token", is(user.getToken())))
+        .andExpect(jsonPath("$.status", is(user.getStatus().toString())))
+        .andExpect(jsonPath("$.creation_date", is(user.getCreation_date().toString())))
+        .andExpect(jsonPath("$.birthday", is(user.getBirthday().toString())));
   }
 
-  /**
-   * Helper Method to convert userPostDTO into a JSON string such that the input
-   * can be processed
-   * Input will look like this: {"name": "Test User", "username": "testUsername"}
-   * 
-   * @param object
-   * @return string
-   */
   private String asJsonString(final Object object) {
     try {
       return new ObjectMapper().writeValueAsString(object);

@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Date;
+
 public class UserServiceTest {
 
   @Mock
@@ -22,64 +26,48 @@ public class UserServiceTest {
   private UserService userService;
 
   private User testUser;
+  private UserPostDTO userPostDTO;
 
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
 
-    // given
     testUser = new User();
-    testUser.setId(1L);
-    testUser.setName("testName");
     testUser.setUsername("testUsername");
+    testUser.setPassword("testPassword");
+    testUser.setStatus(UserStatus.OFFLINE);
+    testUser.setCreation_date(new Date(1));
+    testUser.setBirthday(new Date(1));
 
-    // when -> any object is being save in the userRepository -> return the dummy
-    // testUser
+
+    userPostDTO = new UserPostDTO();
+    userPostDTO.setUsername("testUsername");
+    userPostDTO.setPassword("testPassword");
+
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
   }
 
   @Test
   public void createUser_validInputs_success() {
-    // when -> any object is being save in the userRepository -> return the dummy
-    // testUser
-    User createdUser = userService.createUser(testUser);
+    User createdUser = userService.createUser(userPostDTO);
 
-    // then
     Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
 
     assertEquals(testUser.getId(), createdUser.getId());
-    assertEquals(testUser.getName(), createdUser.getName());
     assertEquals(testUser.getUsername(), createdUser.getUsername());
-    assertNotNull(createdUser.getToken());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertEquals(testUser.getCreation_date(), createdUser.getCreation_date());
+    assertEquals(testUser.getBirthday(), createdUser.getBirthday());
   }
 
   @Test
   public void createUser_duplicateName_throwsException() {
-    // given -> a first user has already been created
-    userService.createUser(testUser);
+    userService.createUser(userPostDTO);
 
-    // when -> setup additional mocks for UserRepository
-    Mockito.when(userRepository.findByName(Mockito.any())).thenReturn(testUser);
-    Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
-
-    // then -> attempt to create second user with same user -> check that an error
-    // is thrown
-    assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
-  }
-
-  @Test
-  public void createUser_duplicateInputs_throwsException() {
-    // given -> a first user has already been created
-    userService.createUser(testUser);
-
-    // when -> setup additional mocks for UserRepository
-    Mockito.when(userRepository.findByName(Mockito.any())).thenReturn(testUser);
     Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
-    // then -> attempt to create second user with same user -> check that an error
-    // is thrown
-    assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+    assertThrows(ResponseStatusException.class, () -> userService.createUser(userPostDTO));
   }
 
 }
