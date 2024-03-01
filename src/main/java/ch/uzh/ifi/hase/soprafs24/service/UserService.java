@@ -47,7 +47,6 @@ public class UserService {
     checkIfUserExists(newUser);
     newUser = userRepository.save(newUser);
     userRepository.flush();
-    //log.info("Created Information for User: {}", newUser);
     return newUser;
   }
 
