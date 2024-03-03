@@ -38,8 +38,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public UserGetWithTokenDTO createUser(@RequestBody UserPostDTO userPostDTO) {
-    UserPostDTO userInput = DTOMapper.INSTANCE.convertUserPostDTOtoUserPostDTO(userPostDTO);
-    User newUser = userService.createUser(userInput);
+    User newUser = userService.createUser(userPostDTO);
     return DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(newUser);
   }
   
@@ -47,8 +46,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.ACCEPTED)
   @ResponseBody
   public UserGetWithTokenDTO authenticateUser(@RequestBody UserPostDTO userPostDTO) {
-    UserPostDTO userInput = DTOMapper.INSTANCE.convertUserPostDTOtoUserPostDTO(userPostDTO);
-    User user = userService.matchingUser(userInput);
+    User user = userService.matchingUser(userPostDTO);
     return DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(user);
   }
 
@@ -56,8 +54,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.ACCEPTED)
   @ResponseBody
   public UserGetWithTokenDTO authenticateUserWithToken(@RequestBody UserWithTokenPostDTO userWithTokenPostDTO) {
-    UserWithTokenPostDTO userInput = DTOMapper.INSTANCE.convertUserWithTokenPostDTOtoUserWithTokenPostDTO(userWithTokenPostDTO);
-    User user = userService.matchingUserWithToken(userInput);
+    User user = userService.matchingUserWithToken(userWithTokenPostDTO);
     return DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(user);
   }
 }
