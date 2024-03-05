@@ -18,6 +18,7 @@ public class DTOMapperTest {
     user.setUsername("firstname@lastname");
     user.setPassword("password");
     user.setStatus(UserStatus.OFFLINE);
+    user.setLastStatus(1L);
     user.setCreation_date(new Date(1));
     user.setBirthday(new Date(1));
 
@@ -36,6 +37,7 @@ public class DTOMapperTest {
     user.setUsername("firstname@lastname");
     user.setPassword("password");
     user.setStatus(UserStatus.OFFLINE);
+    user.setLastStatus(1L);
     user.setToken("1");
     user.setCreation_date(new Date(1));
     user.setBirthday(new Date(1));

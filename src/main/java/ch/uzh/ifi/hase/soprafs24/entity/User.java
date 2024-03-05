@@ -41,6 +41,11 @@ public class User implements Serializable {
   @Column(nullable = false)
   @Getter
   @Setter 
+  private Long lastStatus;
+
+  @Column(nullable = false)
+  @Getter
+  @Setter 
   private Date creation_date;
 
   @Column()

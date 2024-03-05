@@ -4,11 +4,12 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserStatusPingDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenPostDTO;
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
-//import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class UserService {
 
   private final UserRepository userRepository;
 
-  //@Autowired
+  @Autowired
   public UserService(@Qualifier("userRepository") UserRepository userRepository) {
     this.userRepository = userRepository;
   }
@@ -37,21 +38,23 @@ public class UserService {
   }
 
   public User createUser(UserPostDTO newUserInput) {
+    checkIfUsernameExists(newUserInput.getUsername());
+    long now = System.currentTimeMillis();
     User newUser = new User();
     newUser.setUsername(newUserInput.getUsername());
     newUser.setPassword(newUserInput.getPassword());
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
-    newUser.setCreation_date(new Date(System.currentTimeMillis()));
+    newUser.setLastStatus(now);
+    newUser.setCreation_date(new Date(now));
     newUser.setBirthday(null);
-    checkIfUserExists(newUser);
     newUser = userRepository.save(newUser);
     userRepository.flush();
     return newUser;
   }
 
-  private void checkIfUserExists(User userToBeCreated) {
-    User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+  private void checkIfUsernameExists(String username) {
+    User userByUsername = userRepository.findByUsername(username);
     String errorMessage = "The username provided already exists. Please choose another one.";
     if (userByUsername != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
@@ -78,5 +81,15 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
     }
     return user;
+  }
+
+  public void updateOnlineStatus(UserStatusPingDTO userStatusPingDTO) {
+    User user = userRepository.findByToken(userStatusPingDTO.getToken());
+    if (user == null) {
+      return;
+    }
+    long now = System.currentTimeMillis();
+    user.setStatus(UserStatus.ONLINE);
+    user.setLastStatus(now);
   }
 }
