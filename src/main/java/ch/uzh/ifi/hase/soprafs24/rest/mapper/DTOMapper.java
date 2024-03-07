@@ -1,8 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetWithTokenDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenDTO;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -17,7 +17,7 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "creation_date", target = "creation_date")
   @Mapping(source = "birthday", target = "birthday")
-  UserGetDTO convertEntityToUserGetDTO(User user);
+  UserDTO convertEntityToUserDTO(User user);
 
   @Mapping(source = "id", target = "id")
   @Mapping(source = "username", target = "username")
@@ -25,5 +25,5 @@ public interface DTOMapper {
   @Mapping(source = "status", target = "status")
   @Mapping(source = "creation_date", target = "creation_date")
   @Mapping(source = "birthday", target = "birthday")
-  UserGetWithTokenDTO convertEntityToUserGetWithTokenDTO(User user);
+  UserWithTokenDTO convertEntityToUserWithTokenDTO(User user);
 }

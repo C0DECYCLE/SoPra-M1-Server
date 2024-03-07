@@ -3,7 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserAuthenticateDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class UserServiceTest {
   private UserService userService;
 
   private User testUser;
-  private UserPostDTO userPostDTO;
+  private UserAuthenticateDTO userPostDTO;
 
   @BeforeEach
   public void setup() {
@@ -41,7 +41,7 @@ public class UserServiceTest {
     testUser.setBirthday(new Date(1));
 
 
-    userPostDTO = new UserPostDTO();
+    userPostDTO = new UserAuthenticateDTO();
     userPostDTO.setUsername("testUsername");
     userPostDTO.setPassword("testPassword");
 

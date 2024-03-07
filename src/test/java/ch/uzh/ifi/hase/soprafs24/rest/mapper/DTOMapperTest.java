@@ -2,8 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetWithTokenDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenDTO;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,13 +22,13 @@ public class DTOMapperTest {
     user.setCreation_date(new Date(1));
     user.setBirthday(new Date(1));
 
-    UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+    UserDTO userDTO = DTOMapper.INSTANCE.convertEntityToUserDTO(user);
 
-    assertEquals(user.getId(), userGetDTO.getId());
-    assertEquals(user.getUsername(), userGetDTO.getUsername());
-    assertEquals(user.getStatus(), userGetDTO.getStatus());
-    assertEquals(user.getCreation_date(), userGetDTO.getCreation_date());
-    assertEquals(user.getBirthday(), userGetDTO.getBirthday());
+    assertEquals(user.getId(), userDTO.getId());
+    assertEquals(user.getUsername(), userDTO.getUsername());
+    assertEquals(user.getStatus(), userDTO.getStatus());
+    assertEquals(user.getCreation_date(), userDTO.getCreation_date());
+    assertEquals(user.getBirthday(), userDTO.getBirthday());
   }
 
   @Test
@@ -42,7 +42,7 @@ public class DTOMapperTest {
     user.setCreation_date(new Date(1));
     user.setBirthday(new Date(1));
 
-    UserGetWithTokenDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetWithTokenDTO(user);
+    UserWithTokenDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserWithTokenDTO(user);
 
     assertEquals(user.getId(), userGetDTO.getId());
     assertEquals(user.getUsername(), userGetDTO.getUsername());

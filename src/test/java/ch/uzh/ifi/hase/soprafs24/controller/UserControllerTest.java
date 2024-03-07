@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserAuthenticateDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,15 +71,15 @@ public class UserControllerTest {
     user.setCreation_date(new Date(1));
     user.setBirthday(new Date(1));
     
-    UserPostDTO userPostDTO = new UserPostDTO();
-    userPostDTO.setUsername("testUsername");
-    userPostDTO.setPassword("testPassword");
+    UserAuthenticateDTO userAuthenticateDTO = new UserAuthenticateDTO();
+    userAuthenticateDTO.setUsername("testUsername");
+    userAuthenticateDTO.setPassword("testPassword");
 
     given(userService.createUser(Mockito.any())).willReturn(user);
 
     MockHttpServletRequestBuilder postRequest = post("/users")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(userPostDTO));
+        .content(asJsonString(userAuthenticateDTO));
 
     mockMvc.perform(postRequest)
         .andExpect(status().isCreated())

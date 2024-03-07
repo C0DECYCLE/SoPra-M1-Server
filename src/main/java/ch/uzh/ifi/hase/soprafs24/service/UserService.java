@@ -3,9 +3,10 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserAuthenticateDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserStatusPingDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserWithTokenPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserAuthenticateByTokenDTO;
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,12 +39,12 @@ public class UserService {
     return this.userRepository.findAll();
   }
 
-  public User createUser(UserPostDTO newUserInput) {
-    checkIfUsernameExists(newUserInput.getUsername());
+  public User createUser(UserAuthenticateDTO userRegister) {
+    checkIfUsernameExists(userRegister.getUsername());
     long now = System.currentTimeMillis();
     User newUser = new User();
-    newUser.setUsername(newUserInput.getUsername());
-    newUser.setPassword(newUserInput.getPassword());
+    newUser.setUsername(userRegister.getUsername());
+    newUser.setPassword(userRegister.getPassword());
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setLastStatus(now);
@@ -61,21 +63,21 @@ public class UserService {
     }
   }
 
-  public User matchingUser(UserPostDTO userInput) {
-    User userByUsername = userRepository.findByUsername(userInput.getUsername());
+  public User matchingUser(UserAuthenticateDTO userAuthenticate) {
+    User userByUsername = userRepository.findByUsername(userAuthenticate.getUsername());
     String unknownMessage = "Username doesn't exist. Please try again.";
     String wrongMessage = "Password is not correct. Please try again.";
     if (userByUsername == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, unknownMessage);
     }
-    if (!userByUsername.getPassword().trim().equals(userInput.getPassword().trim())) {
+    if (!userByUsername.getPassword().trim().equals(userAuthenticate.getPassword().trim())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, wrongMessage);
     }
     return userByUsername;
   }
 
-  public User matchingUserWithToken(UserWithTokenPostDTO userInput) {
-    User user = userRepository.findByToken(userInput.getToken());
+  public User matchingUserByToken(UserAuthenticateByTokenDTO userAuthenticate) {
+    User user = userRepository.findByToken(userAuthenticate.getToken());
     String errorMessage = "Invalid token.";
     if (user == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
@@ -91,5 +93,45 @@ public class UserService {
     long now = System.currentTimeMillis();
     user.setStatus(UserStatus.ONLINE);
     user.setLastStatus(now);
+  }
+
+  public User matchingUserWithId(Long id) {
+    String errorMessage = "Invalid user id.";
+    if (id == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+    }
+    Optional<User> user = userRepository.findById(id);
+    if (user.isEmpty() || user.get() == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+    }
+    return user.get();
+  }
+
+  public void secureUpdateUser(Long userId, UserUpdateDTO userUpdate) {
+    User user = matchingUserWithId(userId);
+    String errorMessage = "Invalid update user attempt.";
+    if (!user.getToken().equals(userUpdate.getToken())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+    }
+    if (userUpdate.getUsername().isPresent()) {
+      checkIfUsernameExists(userUpdate.getUsername().get());
+      user.setUsername(userUpdate.getUsername().get());
+    }
+    if (userUpdate.getBirthday().isPresent()) {
+      user.setBirthday(userUpdate.getBirthday().get());
+    }
+    userRepository.save(user);
+    userRepository.flush();
+  }
+
+  public void secureUnbirthdayUser(Long userId, UserAuthenticateByTokenDTO userAuthenticate) {
+    User user = matchingUserWithId(userId);
+    String errorMessage = "Invalid update user attempt.";
+    if (!user.getToken().equals(userAuthenticate.getToken())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+    }
+    user.setBirthday(null);
+    userRepository.save(user);
+    userRepository.flush();
   }
 }

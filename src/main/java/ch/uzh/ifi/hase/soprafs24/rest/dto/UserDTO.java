@@ -4,7 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-public class UserGetDTO {
+public class UserDTO {
 
   @Getter
   @Setter 
